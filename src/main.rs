@@ -1,10 +1,12 @@
 mod md;
 
-use std::fs::OpenOptions;
-use std::io::{BufRead, BufReader};
+use crate::md::{write_lite, write_students};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
-use crate::md::{write_lite, write_students};
+use std::clone::Clone;
+use std::fs::OpenOptions;
+use std::io::{BufRead, BufReader};
+use std::iter::Iterator;
 
 const CSV_NAME: &'static str = "original.csv";
 const MINS_PER_TUT: usize = 90;

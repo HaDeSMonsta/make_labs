@@ -1,7 +1,7 @@
+use crate::Student;
 use std::cmp::max;
 use std::fs::OpenOptions;
 use std::io::{BufWriter, Write};
-use crate::Student;
 
 pub fn write_lite(students: Vec<Student>, file_name: &str) {
     let header = vec![
