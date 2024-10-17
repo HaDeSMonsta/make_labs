@@ -40,6 +40,7 @@ pub fn write_students(students: Vec<Student>, file_name: &str) {
         "Matr. Num",
         "Email",
         "Time",
+        "Freischuss",
     ].into_iter()
         .map(|s| String::from(s))
         .collect::<Vec<_>>();
