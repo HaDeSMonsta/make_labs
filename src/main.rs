@@ -1,19 +1,15 @@
 mod md;
+mod consts;
 
 use crate::md::{write_lite, write_students};
+use crate::consts::*;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use std::clone::Clone;
+use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader};
 use std::iter::Iterator;
-
-const CSV_NAME: &'static str = "original.csv";
-const MINS_PER_TUT: usize = 90;
-const FIRST_TUT_FNAME: &'static str = "first.md";
-const SECOND_TUT_FNAME: &'static str = "second.md";
-const FIRST_TUT_FNAME_PUB: &'static str = "first_pub.md";
-const SECOND_TUT_FNAME_PUB: &'static str = "second_pub.md";
 
 #[derive(Clone, Debug)]
 #[allow(dead_code)]
@@ -27,9 +23,9 @@ pub struct Student {
     pub email: String,
 }
 
-fn assign_times(students: &mut Vec<Student>, start_hour: usize, start_min: usize) {
+fn assign_times(students: &mut Vec<Student>, start_hour: usize, start_min: usize, duration: usize) {
     students.shuffle(&mut thread_rng());
-    let mins_per_student = MINS_PER_TUT / students.len();
+    let mins_per_student = duration / students.len();
 
     let mut hour = start_hour;
     let mut min = start_min;
@@ -42,18 +38,43 @@ fn assign_times(students: &mut Vec<Student>, start_hour: usize, start_min: usize
     }
 }
 
-fn main() {
+fn check_env() {
     dotenv::dotenv().expect("Unable to find .env file");
+
+    assert_eq!(
+        TUT_NAMES.len(),
+        TUT_START_HORS.len(),
+        "Each tut must have a name and start hour",
+    );
+
+    assert_eq!(
+        TUT_NAMES.len(),
+        TUT_START_MINS.len(),
+        "Each tut must have a name and start min",
+    );
+
+    assert_eq!(
+        TUT_NAMES.len(),
+        TUT_DURATION_MINS.len(),
+        "Each tut must have a name and a duration",
+    );
+}
+
+fn main() {
+    check_env();
 
     let csv = OpenOptions::new()
         .read(true)
-        .open(CSV_NAME)
-        .expect(&format!("Unable to open {CSV_NAME}"));
+        .open(&*CSV_NAME)
+        .expect(&format!("Unable to open {}", *CSV_NAME));
 
     let reader = BufReader::new(csv);
 
-    let mut first_tut = Vec::new();
-    let mut second_tut = Vec::new();
+    let mut tuts = HashMap::new();
+
+    for name in &*TUT_NAMES {
+        tuts.insert(name.clone(), Vec::new());
+    }
 
     reader.lines()
           .skip(1)
@@ -79,22 +100,35 @@ fn main() {
               }
           })
           .filter(|s| {
-              s.tutor == "Leon"
+              s.tutor == *TUTOR_NAME
           })
           .for_each(|s| {
-              match s.tutorium.as_str() {
-                  "Online Zoom 06" => first_tut.push(s),
-                  "Online Zoom 07" => second_tut.push(s),
-                  tut => panic!("Invalid tut: {tut}")
+              match tuts.get_mut(&s.tutorium) {
+                  Some(vec) => vec.push(s),
+                  None => panic!("Invalid tut: {}", s.tutorium),
               }
           });
 
-    assign_times(&mut first_tut, 8, 15);
-    assign_times(&mut second_tut, 10, 15);
+    for (name, mut students) in tuts {
+        let mut idx = 100;
+        for i in 0..TUT_NAMES.len() {
+            if TUT_NAMES[i] == name {
+                idx = i;
+                break;
+            }
+        }
 
-    write_lite(first_tut.clone(), FIRST_TUT_FNAME_PUB);
-    write_lite(second_tut.clone(), SECOND_TUT_FNAME_PUB);
+        assert_ne!(idx, 100);
 
-    write_students(first_tut, FIRST_TUT_FNAME);
-    write_students(second_tut, SECOND_TUT_FNAME);
+        assign_times(
+            &mut students,
+            TUT_START_HORS[idx],
+            TUT_START_MINS[idx],
+            TUT_DURATION_MINS[idx],
+        );
+
+        write_lite(students.clone(), &format!("public_{}.md", idx + 1));
+
+        write_students(students, &format!("internal_{}.md", idx + 1));
+    }
 }
