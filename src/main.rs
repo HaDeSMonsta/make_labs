@@ -54,38 +54,38 @@ fn main() {
     let mut second_tut = Vec::new();
 
     reader.lines()
-                  .skip(1)
-                  .map(|l| {
-                      l.expect("Invalid line")
-                  })
-                  .map(|l| {
-                      l.split(",")
-                       .map(|s| {
-                           String::from(s)
-                       })
-                       .collect::<Vec<_>>()
-                  })
-                  .map(|vec| {
-                      Student {
-                          first_name: String::from(vec[1].trim()),
-                          last_name: String::from(vec[0].trim()),
-                          tutor: String::from(vec[10].trim()),
-                          tutorium: String::from(vec[7].trim()),
-                          slot: None,
-                          matr_num: String::from(vec[2].trim()),
-                          email: String::from(vec[4].trim()),
-                      }
-                  })
-                  .filter(|s| {
-                      s.tutor == "Leon"
-                  })
-                  .for_each(|s| {
-                      match s.tutorium.as_str() {
-                          "Online Zoom 06" => first_tut.push(s),
-                          "Online Zoom 07" => second_tut.push(s),
-                          tut => panic!("Invalid tut: {tut}")
-                      }
-                  });
+          .skip(1)
+          .map(|l| {
+              l.expect("Invalid line")
+          })
+          .map(|l| {
+              l.split(",")
+               .map(|s| {
+                   String::from(s)
+               })
+               .collect::<Vec<_>>()
+          })
+          .map(|vec| {
+              Student {
+                  first_name: String::from(vec[1].trim()),
+                  last_name: String::from(vec[0].trim()),
+                  tutor: String::from(vec[10].trim()),
+                  tutorium: String::from(vec[7].trim()),
+                  slot: None,
+                  matr_num: String::from(vec[2].trim()),
+                  email: String::from(vec[4].trim()),
+              }
+          })
+          .filter(|s| {
+              s.tutor == "Leon"
+          })
+          .for_each(|s| {
+              match s.tutorium.as_str() {
+                  "Online Zoom 06" => first_tut.push(s),
+                  "Online Zoom 07" => second_tut.push(s),
+                  tut => panic!("Invalid tut: {tut}")
+              }
+          });
 
     assign_times(&mut first_tut, 8, 15);
     assign_times(&mut second_tut, 10, 15);
