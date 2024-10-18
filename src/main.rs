@@ -60,8 +60,6 @@ fn main() {
                   })
                   .map(|l| {
                       l.split(",")
-                       .collect::<Vec<_>>()
-                       .into_iter()
                        .map(|s| {
                            String::from(s)
                        })
