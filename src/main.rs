@@ -43,6 +43,8 @@ fn assign_times(students: &mut Vec<Student>, start_hour: usize, start_min: usize
 }
 
 fn main() {
+    dotenv::dotenv().expect("Unable to find .env file");
+
     let csv = OpenOptions::new()
         .read(true)
         .open(CSV_NAME)
