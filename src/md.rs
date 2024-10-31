@@ -37,8 +37,6 @@ pub fn write_students(students: Vec<Student>, file_name: &str) {
     let mut header = vec![
         "Last Name",
         "First Name",
-        "Matr. Num",
-        "Email",
         "Time",
         "Freischuss",
     ].into_iter()
@@ -48,6 +46,7 @@ pub fn write_students(students: Vec<Student>, file_name: &str) {
     for i in 1..=14 {
         header.push(format!("{i}"));
     }
+    header.push(String::from("Notes"));
 
     let mut sep = Vec::new();
 
@@ -60,8 +59,6 @@ pub fn write_students(students: Vec<Student>, file_name: &str) {
                                    vec![
                                        s.last_name,
                                        s.first_name,
-                                       s.matr_num,
-                                       s.email,
                                        s.slot.unwrap(),
                                    ]
                                })
